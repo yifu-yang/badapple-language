@@ -1,7 +1,7 @@
 package org.blackjack;
 
 public enum Token{
-    //public static final TOKEN_EOF         = iota;  // end-of-file
+    TOKEN_EOF("EOF"),
     TOKEN_VAR_PREFIX("$"),
     TOKEN_LEFT_PAREN("("),
     TOKEN_RIGHT_PAREN(")"),
@@ -9,9 +9,14 @@ public enum Token{
     TOKEN_QUOTE("\""),
     TOKEN_DUOQUOTE("\"\""),
     TOKEN_NAME("[_A-Za-z][_0-9A-Za-z]*"),
-    TOKEN_PRINT("print");
+    TOKEN_PRINT("print"),
+    TOKEN_IGNORED("Ignored");
+
 
     private String tokenValue;
+
+    private String value;
+    private int lineNumber;
 
     private Token(String token) {
         this.tokenValue = token;
@@ -19,5 +24,21 @@ public enum Token{
 
     public String getTokenValue(){
         return tokenValue;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 }
