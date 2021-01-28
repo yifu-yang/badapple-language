@@ -13,7 +13,7 @@ public enum Token{
     TOKEN_IGNORED("Ignored");
 
 
-    private String tokenValue;
+    private final String tokenValue;
 
     private String value;
     private int lineNumber;
