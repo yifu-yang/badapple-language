@@ -1,2 +1,4 @@
-package org.blackjack.entity;public interface Statement {
+package org.blackjack.entity;
+
+public interface Statement {
 }

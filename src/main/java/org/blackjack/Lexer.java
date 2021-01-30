@@ -73,7 +73,7 @@ public class Lexer {
         }
     }
 
-    public Token LookAhead() throws Exception {
+    public Token lookAhead() throws Exception {
         if(nextTokenLineNum>0){
             return nextTokenType;
         }
@@ -90,14 +90,14 @@ public class Lexer {
         if(isIgnore()){
             Token t1 = Token.TOKEN_IGNORED;
             t1.setLineNumber(this.lineNum);
-            t1.setValue("EOF");
+            t1.setValue("Ignored");
             return t1;
         }
 
         if(sourceCode.length()==0){
             Token t1 = Token.TOKEN_EOF;
             t1.setLineNumber(this.lineNum);
-            t1.setValue("Ignored");
+            t1.setValue("EOF");
             return t1;
         }
 
@@ -171,7 +171,7 @@ public class Lexer {
         return matchNext();
     }
 
-    public Token NextTokenIs(Token tokenType) throws Exception {
+    public Token nextTokenIs(Token tokenType) throws Exception {
         Token t = getNextTokenObject();
         if (tokenType.getTokenValue().equals(t.getTokenValue())){
             throw new Exception("wrong token type");
@@ -179,6 +179,15 @@ public class Lexer {
         return t;
     }
 
+    public String scanBeforeToken(String token){
+        String[] s = sourceCode.split(token);
+        if(s.length<2){
+            System.out.println("unreachable");
+            return "";
+        }
+        skipCode(s[0].length());
+        return s[0];
+    }
 
     private boolean isLetter(char c) {
         return c <= 'Z' && c >= 'A' || c <= 'z' && c >= 'a';
