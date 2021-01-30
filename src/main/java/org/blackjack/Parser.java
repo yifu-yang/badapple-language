@@ -104,7 +104,7 @@ public class Parser {
                 return s;
             case TOKEN_QUOTE:
                 lexer.nextTokenIs(Token.TOKEN_QUOTE);
-                s = lexer.;
+                s = lexer.scanBeforeToken("\"");
                 lexer.nextTokenIs(Token.TOKEN_QUOTE);
                 lexer.lookAheadAndSkip(Token.TOKEN_IGNORED);
                 return s;
