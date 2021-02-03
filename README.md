@@ -1,2 +1,5 @@
 # badapple-language
-Implement 'bad apple' program language in nearly 450 lines
+
+Implement a program language in nearly 450 lines
+
+follow the guide of [karminski](https://github.com/karminski/pineapple)
