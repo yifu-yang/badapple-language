@@ -1,10 +1,11 @@
 package org.blackjack;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.blackjack.Token.TOKEN_PRINT;
-import static org.blackjack.Token.TOKEN_VAR_PREFIX;
+import static org.blackjack.Token.*;
 
 public class Lexer {
     private static final String NAME_PATTERN = "^[_\\d\\w]+";
@@ -13,6 +14,7 @@ public class Lexer {
     private String nextToken;
     private Token nextTokenType;
     private int nextTokenLineNum;
+    private Map<String,Token> keywordMap;
 
     public Lexer(String sourceCode) {
         this.sourceCode = sourceCode;
@@ -20,6 +22,16 @@ public class Lexer {
         this.nextToken = "";
         this.nextTokenType = Token.TOKEN_EOF;
         this.nextTokenLineNum = 0;
+
+        keywordMap = new HashMap<>();
+        keywordMap.put("$", TOKEN_VAR_PREFIX);
+        keywordMap.put("\"",TOKEN_QUOTE);
+        keywordMap.put("(",TOKEN_LEFT_PAREN);
+        keywordMap.put(")",TOKEN_RIGHT_PAREN);
+        keywordMap.put("=",TOKEN_EQUAL);
+        keywordMap.put("print",TOKEN_PRINT);
+        keywordMap.put("\"\"",TOKEN_DUOQUOTE);
+
     }
 
     public String getSourceCode() {
@@ -65,7 +77,7 @@ public class Lexer {
     public void lookAheadAndSkip(Token token) throws Exception {
         int nowLineNum = lineNum;
         Token t = getNextTokenObject();
-        if( !t.getTokenValue().equals(token.getTokenValue())){
+        if (!t.getTokenValue().equals(token.getTokenValue())) {
             lineNum = nowLineNum;
             nextTokenLineNum = t.getLineNumber();
             nextTokenType = t;
@@ -74,7 +86,7 @@ public class Lexer {
     }
 
     public Token lookAhead() throws Exception {
-        if(nextTokenLineNum>0){
+        if (nextTokenLineNum > 0) {
             return nextTokenType;
         }
         int nowLineNum = lineNum;
@@ -87,14 +99,14 @@ public class Lexer {
     }
 
     public Token matchNext() throws Exception {
-        if(isIgnore()){
+        if (isIgnore()) {
             Token t1 = Token.TOKEN_IGNORED;
             t1.setLineNumber(this.lineNum);
             t1.setValue("Ignored");
             return t1;
         }
 
-        if(sourceCode.length()==0){
+        if (sourceCode.length() == 0) {
             Token t1 = Token.TOKEN_EOF;
             t1.setLineNumber(this.lineNum);
             t1.setValue("EOF");
@@ -141,27 +153,29 @@ public class Lexer {
                 return t5;
         }
 
-        // for many char token
+        // for many char token  todo need use keyword map to check keyword
         if (sourceCode.charAt(0) == '_' || isLetter(sourceCode.charAt(0))) {
-            if (Pattern.matches(NAME_PATTERN, sourceCode)) {
-                Pattern r = Pattern.compile(NAME_PATTERN);
-                Matcher matcher = r.matcher(sourceCode);
-                if (matcher.find()) {
-                    skipCode(matcher.group(1).length());
-                    Token t5 = Token.TOKEN_NAME;
-                    t5.setLineNumber(this.lineNum);
-                    t5.setValue(matcher.group(1));
-                    return t5;
+            Pattern r = Pattern.compile(NAME_PATTERN);
+            Matcher matcher = r.matcher(sourceCode);
+            if (matcher.find()) {
+                String matchStr = matcher.group();
+                skipCode(matchStr.length());
+                Token t5 = Token.TOKEN_NAME;
+                if(keywordMap.containsKey(matchStr)){
+                    t5 = keywordMap.get(matchStr);
                 }
+                t5.setLineNumber(this.lineNum);
+                t5.setValue(matchStr);
+                return t5;
             }
         }
 
-        throw new Exception("unknown many token");
+        throw new Exception("unknown many token:" + sourceCode);
     }
 
     public Token getNextTokenObject() throws Exception {
-        if(nextTokenLineNum>0){
-            Token t= nextTokenType;
+        if (nextTokenLineNum > 0) {
+            Token t = nextTokenType;
             t.setLineNumber(nextTokenLineNum);
             t.setValue(nextToken);
             lineNum = nextTokenLineNum;
@@ -173,15 +187,15 @@ public class Lexer {
 
     public Token nextTokenIs(Token tokenType) throws Exception {
         Token t = getNextTokenObject();
-        if (tokenType.getTokenValue().equals(t.getTokenValue())){
+        if (!tokenType.getTokenValue().equals(t.getTokenValue())) {
             throw new Exception("wrong token type");
         }
         return t;
     }
 
-    public String scanBeforeToken(String token){
+    public String scanBeforeToken(String token) {
         String[] s = sourceCode.split(token);
-        if(s.length<2){
+        if (s.length < 2) {
             System.out.println("unreachable");
             return "";
         }

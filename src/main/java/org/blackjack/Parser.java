@@ -1,16 +1,11 @@
 package org.blackjack;
 
-import org.blackjack.entity.Print;
-import org.blackjack.entity.SourceCode;
-import org.blackjack.entity.Statement;
-import org.blackjack.entity.Variable;
+import org.blackjack.entity.*;
 
-import javax.xml.transform.Source;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.blackjack.Token.TOKEN_EOF;
-import static org.blackjack.Token.TOKEN_PRINT;
+import static org.blackjack.Token.*;
 
 public class Parser {
 
@@ -66,7 +61,7 @@ public class Parser {
 
     public SourceCode parse(String code) throws Exception {
         SourceCode sourceCode = new SourceCode();
-        Lexer lexer = new Lexer(code);
+        lexer = new Lexer(code);
         sourceCode = parseSourceCode();
         lexer.nextTokenIs(TOKEN_EOF);
         return sourceCode;
@@ -86,8 +81,16 @@ public class Parser {
         return variable;
     }
 
-    public Statement parseAssignment() {
-        return null;
+    public Statement parseAssignment() throws Exception {
+        Assignment assignment = new Assignment();
+        assignment.setLineNumber(lexer.getLineNum());
+        assignment.setVariable(parseVariable());
+        lexer.lookAheadAndSkip(Token.TOKEN_IGNORED);
+        lexer.nextTokenIs(Token.TOKEN_EQUAL);
+        lexer.lookAheadAndSkip(Token.TOKEN_IGNORED);
+        assignment.setString(parseString());
+        lexer.lookAheadAndSkip(TOKEN_IGNORED);
+        return assignment;
     }
 
     public String parseName() throws Exception {
